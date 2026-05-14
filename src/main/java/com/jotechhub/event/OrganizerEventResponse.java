@@ -31,5 +31,6 @@ public class OrganizerEventResponse {
     private LocalDateTime cancelledAt;
     private String cancellationReason;
     private String timeState;
+    private Integer activeRegistrationsCount;
     private List<String> tags;
 }

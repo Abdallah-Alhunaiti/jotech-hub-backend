@@ -31,6 +31,7 @@ public class AdminEventResponse {
     private String location;
     private String registrationLink;
     private Integer capacity;
+    private Integer activeRegistrationsCount;
 
     private String status;
     private Boolean cancelled;

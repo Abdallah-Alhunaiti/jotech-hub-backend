@@ -26,6 +26,7 @@ public class PublicEventDetailsResponse {
     private String location;
     private String registrationLink;
     private Integer capacity;
+    private Integer activeRegistrationsCount;
     private List<String> tags;
     private String timeState;
 }

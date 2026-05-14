@@ -21,5 +21,7 @@ public class PublicEventCardResponse {
     private LocalTime eventTime;
     private String location;
     private BigDecimal price;
+    private Integer capacity;
+    private Integer activeRegistrationsCount;
     private String timeState;
 }

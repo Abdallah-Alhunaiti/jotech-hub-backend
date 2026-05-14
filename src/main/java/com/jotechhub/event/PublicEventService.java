@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.jotechhub.subscription.SubscriptionRepository;
+import com.jotechhub.subscription.SubscriptionStatus;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class PublicEventService {
 
     private final EventRepository eventRepository;
     private final OrganizerProfileRepository organizerProfileRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
     public PagedResponse<PublicEventCardResponse> getPublicEvents(
             String keyword,
@@ -98,6 +100,8 @@ public class PublicEventService {
                 .eventTime(event.getEventTime())
                 .location(event.getLocation())
                 .price(event.getPrice())
+                .capacity(event.getCapacity())
+                .activeRegistrationsCount(getActiveRegistrationsCount(event.getId()))
                 .timeState(resolveTimeState(event))
                 .build();
     }
@@ -116,6 +120,7 @@ public class PublicEventService {
                 .location(event.getLocation())
                 .registrationLink(event.getRegistrationLink())
                 .capacity(event.getCapacity())
+                .activeRegistrationsCount(getActiveRegistrationsCount(event.getId()))
                 .tags(event.getTags().stream().map(tag -> tag.getName()).sorted().toList())
                 .timeState(resolveTimeState(event))
                 .build();
@@ -133,7 +138,7 @@ public class PublicEventService {
 
     private String normalizeText(String value) {
         if (value == null || value.trim().isEmpty()) {
-            return null;
+            return "";
         }
         return value.trim();
     }
@@ -156,5 +161,11 @@ public class PublicEventService {
             case "upcoming" -> Sort.by(Sort.Direction.ASC, "eventDate", "eventTime");
             default -> Sort.by(Sort.Direction.ASC, "eventDate", "eventTime");
         };
+    }
+    private Integer getActiveRegistrationsCount(Long eventId) {
+        return (int) subscriptionRepository.countByEventIdAndStatus(
+                eventId,
+                SubscriptionStatus.ACTIVE
+        );
     }
 }

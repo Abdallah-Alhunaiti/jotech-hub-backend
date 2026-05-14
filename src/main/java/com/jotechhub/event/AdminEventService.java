@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.jotechhub.subscription.SubscriptionRepository;
+import com.jotechhub.subscription.SubscriptionStatus;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class AdminEventService {
 
     private final EventRepository eventRepository;
     private final OrganizerProfileRepository organizerProfileRepository;
-
+    private final SubscriptionRepository subscriptionRepository;
     @Transactional(readOnly = true)
     public List<AdminEventResponse> getAllEvents(String status) {
         List<Event> events;
@@ -99,6 +100,7 @@ public class AdminEventService {
                 .location(event.getLocation())
                 .registrationLink(event.getRegistrationLink())
                 .capacity(event.getCapacity())
+                .activeRegistrationsCount(getActiveRegistrationsCount(event.getId()))
                 .status(event.getStatus().name())
                 .cancelled(event.getCancelled())
                 .cancelledAt(event.getCancelledAt())
@@ -114,5 +116,11 @@ public class AdminEventService {
         return organizerProfileRepository.findByUserId(userId)
                 .map(profile -> profile.getOrganizationName())
                 .orElse("Organizer");
+    }
+    private Integer getActiveRegistrationsCount(Long eventId) {
+        return (int) subscriptionRepository.countByEventIdAndStatus(
+                eventId,
+                SubscriptionStatus.ACTIVE
+        );
     }
 }

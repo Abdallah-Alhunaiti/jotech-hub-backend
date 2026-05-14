@@ -12,7 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.jotechhub.subscription.SubscriptionRepository;
+import com.jotechhub.subscription.SubscriptionStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -26,7 +27,7 @@ public class OrganizerEventService {
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
-
+    private final SubscriptionRepository subscriptionRepository;
     public OrganizerEventResponse createEvent(CreateEventRequest request, Authentication authentication) {
         User organizer = getCurrentOrganizer(authentication);
         Category category = getCategoryOrThrow(request.getCategoryId());
@@ -203,6 +204,7 @@ public class OrganizerEventService {
                 .location(event.getLocation())
                 .registrationLink(event.getRegistrationLink())
                 .capacity(event.getCapacity())
+                .activeRegistrationsCount(getActiveRegistrationsCount(event.getId()))
                 .status(event.getStatus().name())
                 .cancelled(event.getCancelled())
                 .cancelledAt(event.getCancelledAt())
@@ -210,5 +212,11 @@ public class OrganizerEventService {
                 .timeState(event.getEventDate().isBefore(LocalDate.now()) ? "PAST" : "UPCOMING")
                 .tags(event.getTags().stream().map(Tag::getName).sorted().toList())
                 .build();
+    }
+    private Integer getActiveRegistrationsCount(Long eventId) {
+        return (int) subscriptionRepository.countByEventIdAndStatus(
+                eventId,
+                SubscriptionStatus.ACTIVE
+        );
     }
 }

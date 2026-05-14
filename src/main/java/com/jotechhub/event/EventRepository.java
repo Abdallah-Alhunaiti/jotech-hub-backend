@@ -1,18 +1,13 @@
 package com.jotechhub.event;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
-import java.util.Optional;
-
-import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -40,12 +35,17 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             LEFT JOIN e.tags t
             WHERE e.status = com.jotechhub.event.EventStatus.APPROVED
               AND e.cancelled = false
-              AND (:keyword IS NULL
-                   OR LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                   OR LOWER(e.description) LIKE LOWER(CONCAT('%', :keyword, '%')))
+              AND (
+                    :keyword = ''
+                    OR LOWER(e.name) LIKE CONCAT('%', LOWER(:keyword), '%')
+                    OR LOWER(e.description) LIKE CONCAT('%', LOWER(:keyword), '%')
+                  )
               AND (:categoryId IS NULL OR e.category.id = :categoryId)
               AND (:tagId IS NULL OR t.id = :tagId)
-              AND (:location IS NULL OR LOWER(e.location) LIKE LOWER(CONCAT('%', :location, '%')))
+              AND (
+                    :location = ''
+                    OR LOWER(e.location) LIKE CONCAT('%', LOWER(:location), '%')
+                  )
               AND (:dateFrom IS NULL OR e.eventDate >= :dateFrom)
               AND (:dateTo IS NULL OR e.eventDate <= :dateTo)
             """,
@@ -55,12 +55,17 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     LEFT JOIN e.tags t
                     WHERE e.status = com.jotechhub.event.EventStatus.APPROVED
                       AND e.cancelled = false
-                      AND (:keyword IS NULL
-                           OR LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                           OR LOWER(e.description) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                      AND (
+                            :keyword = ''
+                            OR LOWER(e.name) LIKE CONCAT('%', LOWER(:keyword), '%')
+                            OR LOWER(e.description) LIKE CONCAT('%', LOWER(:keyword), '%')
+                          )
                       AND (:categoryId IS NULL OR e.category.id = :categoryId)
                       AND (:tagId IS NULL OR t.id = :tagId)
-                      AND (:location IS NULL OR LOWER(e.location) LIKE LOWER(CONCAT('%', :location, '%')))
+                      AND (
+                            :location = ''
+                            OR LOWER(e.location) LIKE CONCAT('%', LOWER(:location), '%')
+                          )
                       AND (:dateFrom IS NULL OR e.eventDate >= :dateFrom)
                       AND (:dateTo IS NULL OR e.eventDate <= :dateTo)
                     """)
