@@ -1,6 +1,7 @@
 package com.jotechhub.event;
 
 import com.jotechhub.common.response.ApiSuccessResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,11 @@ public class AdminEventController {
     }
 
     @PutMapping("/{eventId}/reject")
-    public ApiSuccessResponse<AdminEventResponse> rejectEvent(@PathVariable Long eventId) {
-        return ApiSuccessResponse.of(adminEventService.rejectEvent(eventId));
+    public ApiSuccessResponse<AdminEventResponse> rejectEvent(
+            @PathVariable Long eventId,
+            @Valid @RequestBody RejectEventRequest request
+    ) {
+        return ApiSuccessResponse.of(adminEventService.rejectEvent(eventId, request));
     }
+
 }

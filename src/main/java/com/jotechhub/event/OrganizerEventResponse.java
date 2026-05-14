@@ -27,6 +27,8 @@ public class OrganizerEventResponse {
     private String registrationLink;
     private Integer capacity;
     private String status;
+    private String rejectionReason;
+    private LocalDateTime reviewedAt;
     private Boolean cancelled;
     private LocalDateTime cancelledAt;
     private String cancellationReason;

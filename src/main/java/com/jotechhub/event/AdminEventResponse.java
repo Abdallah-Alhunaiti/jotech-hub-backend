@@ -34,6 +34,9 @@ public class AdminEventResponse {
     private Integer activeRegistrationsCount;
 
     private String status;
+    private String rejectionReason;
+    private LocalDateTime reviewedAt;
+
     private Boolean cancelled;
     private LocalDateTime cancelledAt;
     private String cancellationReason;

@@ -17,7 +17,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.HexFormat;
+import com.jotechhub.notification.EmailService;
 import java.time.LocalDateTime;
 
 import com.jotechhub.security.JwtService;
@@ -35,6 +44,17 @@ public class AuthService {
     private final CityRepository cityRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
+
+    @Value("${app.frontend.password-reset-url}")
+    private String passwordResetUrl;
+
+    @Value("${app.auth.password-reset-expiration-minutes}")
+    private long passwordResetExpirationMinutes;
+
+    @Value("${app.auth.expose-password-reset-token:false}")
+    private boolean exposePasswordResetToken;
 
     public AuthResponse signupStudent(StudentSignupRequest request) {
         validateEmailNotUsed(request.getEmail());
@@ -198,5 +218,125 @@ public class AuthService {
 
             case ADMIN -> "Admin";
         };
+    }
+
+    public ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request) {
+        String genericMessage = "If this email exists and supports password login, a password reset link has been generated.";
+
+        String email = request.getEmail().trim().toLowerCase();
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null || !Boolean.TRUE.equals(user.getActive())) {
+            return ForgotPasswordResponse.builder()
+                    .message(genericMessage)
+                    .build();
+        }
+
+        boolean hasLocalAccount = authAccountRepository
+                .findByUserIdAndProvider(user.getId(), AuthProvider.LOCAL)
+                .isPresent();
+
+        if (!hasLocalAccount || user.getPassword() == null) {
+            return ForgotPasswordResponse.builder()
+                    .message(genericMessage)
+                    .build();
+        }
+
+        passwordResetTokenRepository.deleteByUserIdAndUsedAtIsNull(user.getId());
+
+        String rawToken = generateSecureToken();
+        String tokenHash = hashToken(rawToken);
+
+        PasswordResetToken passwordResetToken = PasswordResetToken.builder()
+                .user(user)
+                .tokenHash(tokenHash)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(passwordResetExpirationMinutes))
+                .build();
+
+        passwordResetTokenRepository.save(passwordResetToken);
+
+        String resetLink = passwordResetUrl + "?token=" + URLEncoder.encode(rawToken, StandardCharsets.UTF_8);
+
+        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
+
+        return ForgotPasswordResponse.builder()
+                .message(genericMessage)
+                .resetToken(exposePasswordResetToken ? rawToken : null)
+                .resetLink(exposePasswordResetToken ? resetLink : null)
+                .build();
+    }
+
+    public ResetPasswordResponse resetPassword(ResetPasswordRequest request) {
+        validatePasswords(request.getNewPassword(), request.getConfirmPassword());
+
+        String tokenHash = hashToken(request.getToken());
+
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository
+                .findByTokenHashAndUsedAtIsNull(tokenHash)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Invalid or expired password reset token"
+                ));
+
+        if (passwordResetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            passwordResetToken.setUsedAt(LocalDateTime.now());
+            passwordResetTokenRepository.save(passwordResetToken);
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid or expired password reset token"
+            );
+        }
+
+        User user = passwordResetToken.getUser();
+
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This account is deactivated");
+        }
+
+        boolean hasLocalAccount = authAccountRepository
+                .findByUserIdAndProvider(user.getId(), AuthProvider.LOCAL)
+                .isPresent();
+
+        if (!hasLocalAccount) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "This account does not support password reset"
+            );
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        passwordResetToken.setUsedAt(LocalDateTime.now());
+        passwordResetTokenRepository.save(passwordResetToken);
+
+        return ResetPasswordResponse.builder()
+                .message("Password has been reset successfully")
+                .build();
+    }
+
+    private String generateSecureToken() {
+        byte[] bytes = new byte[32];
+        new SecureRandom().nextBytes(bytes);
+
+        return Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(bytes);
+    }
+
+    private String hashToken(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Could not process reset token"
+            );
+        }
     }
 }

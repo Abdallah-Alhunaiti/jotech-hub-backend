@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-
+    private final GoogleOAuth2Service googleOAuth2Service;
     @PostMapping("/signup/student")
     public ResponseEntity<ApiSuccessResponse<AuthResponse>> signupStudent(@Valid @RequestBody StudentSignupRequest request) {
         AuthResponse response = authService.signupStudent(request);
@@ -30,5 +30,25 @@ public class AuthController {
     public ResponseEntity<ApiSuccessResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(ApiSuccessResponse.of(response));
+    }
+    @PostMapping("/oauth2/google/complete")
+    public ResponseEntity<ApiSuccessResponse<AuthResponse>> completeGoogleSignup(
+            @Valid @RequestBody GoogleCompleteSignupRequest request
+    ) {
+        AuthResponse response = googleOAuth2Service.completeGoogleSignup(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiSuccessResponse.of(response));
+    }
+    @PostMapping("/forgot-password")
+    public ApiSuccessResponse<ForgotPasswordResponse> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request
+    ) {
+        return ApiSuccessResponse.of(authService.forgotPassword(request));
+    }
+
+    @PostMapping("/reset-password")
+    public ApiSuccessResponse<ResetPasswordResponse> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request
+    ) {
+        return ApiSuccessResponse.of(authService.resetPassword(request));
     }
 }

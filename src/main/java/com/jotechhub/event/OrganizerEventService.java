@@ -105,8 +105,12 @@ public class OrganizerEventService {
 
         if (event.getStatus() == EventStatus.REJECTED) {
             event.setStatus(EventStatus.PENDING);
+            event.setRejectionReason(null);
+            event.setReviewedAt(null);
         } else if (event.getStatus() == EventStatus.APPROVED && importantFieldsChanged) {
             event.setStatus(EventStatus.PENDING);
+            event.setRejectionReason(null);
+            event.setReviewedAt(null);
         }
 
         event = eventRepository.save(event);
@@ -206,6 +210,8 @@ public class OrganizerEventService {
                 .capacity(event.getCapacity())
                 .activeRegistrationsCount(getActiveRegistrationsCount(event.getId()))
                 .status(event.getStatus().name())
+                .rejectionReason(event.getRejectionReason())
+                .reviewedAt(event.getReviewedAt())
                 .cancelled(event.getCancelled())
                 .cancelledAt(event.getCancelledAt())
                 .cancellationReason(event.getCancellationReason())

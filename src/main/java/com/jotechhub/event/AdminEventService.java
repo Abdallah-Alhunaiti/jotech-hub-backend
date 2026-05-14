@@ -1,14 +1,16 @@
 package com.jotechhub.event;
 
 import com.jotechhub.organizer.OrganizerProfileRepository;
+import com.jotechhub.subscription.SubscriptionRepository;
+import com.jotechhub.subscription.SubscriptionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.jotechhub.subscription.SubscriptionRepository;
-import com.jotechhub.subscription.SubscriptionStatus;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,6 +21,7 @@ public class AdminEventService {
     private final EventRepository eventRepository;
     private final OrganizerProfileRepository organizerProfileRepository;
     private final SubscriptionRepository subscriptionRepository;
+
     @Transactional(readOnly = true)
     public List<AdminEventResponse> getAllEvents(String status) {
         List<Event> events;
@@ -62,12 +65,15 @@ public class AdminEventService {
         }
 
         event.setStatus(EventStatus.APPROVED);
+        event.setRejectionReason(null);
+        event.setReviewedAt(LocalDateTime.now());
+
         event = eventRepository.save(event);
 
         return mapToResponse(event);
     }
 
-    public AdminEventResponse rejectEvent(Long eventId) {
+    public AdminEventResponse rejectEvent(Long eventId, RejectEventRequest request) {
         Event event = eventRepository.findAdminEventById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
 
@@ -80,6 +86,9 @@ public class AdminEventService {
         }
 
         event.setStatus(EventStatus.REJECTED);
+        event.setRejectionReason(request.getRejectionReason().trim());
+        event.setReviewedAt(LocalDateTime.now());
+
         event = eventRepository.save(event);
 
         return mapToResponse(event);
@@ -102,6 +111,8 @@ public class AdminEventService {
                 .capacity(event.getCapacity())
                 .activeRegistrationsCount(getActiveRegistrationsCount(event.getId()))
                 .status(event.getStatus().name())
+                .rejectionReason(event.getRejectionReason())
+                .reviewedAt(event.getReviewedAt())
                 .cancelled(event.getCancelled())
                 .cancelledAt(event.getCancelledAt())
                 .cancellationReason(event.getCancellationReason())
@@ -117,6 +128,7 @@ public class AdminEventService {
                 .map(profile -> profile.getOrganizationName())
                 .orElse("Organizer");
     }
+
     private Integer getActiveRegistrationsCount(Long eventId) {
         return (int) subscriptionRepository.countByEventIdAndStatus(
                 eventId,

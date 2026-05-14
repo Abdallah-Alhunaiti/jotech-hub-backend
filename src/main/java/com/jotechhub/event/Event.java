@@ -73,6 +73,11 @@ public class Event {
     @Column(length = 1000)
     private String cancellationReason;
 
+    @Column(length = 1000)
+    private String rejectionReason;
+
+    private LocalDateTime reviewedAt;
+
     @Builder.Default
     @ManyToMany
     @JoinTable(
