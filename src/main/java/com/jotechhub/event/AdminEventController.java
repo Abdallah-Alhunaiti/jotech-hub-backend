@@ -38,5 +38,12 @@ public class AdminEventController {
     ) {
         return ApiSuccessResponse.of(adminEventService.rejectEvent(eventId, request));
     }
+    @DeleteMapping("/{eventId}")
+    public ApiSuccessResponse<AdminEventResponse> deleteEvent(
+            @PathVariable Long eventId,
+            @Valid @RequestBody(required = false) AdminDeleteEventRequest request
+    ) {
+        return ApiSuccessResponse.of(adminEventService.deleteEvent(eventId, request));
+    }
 
 }

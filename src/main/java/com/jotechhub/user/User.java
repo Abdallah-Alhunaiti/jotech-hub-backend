@@ -51,4 +51,7 @@ public class User {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(length = 500)
+    private String profileImageUrl;
 }

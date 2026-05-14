@@ -106,6 +106,7 @@ public class AuthService {
         System.out.println("signupOrganizer service reached");
         validateEmailNotUsed(request.getEmail());
         validatePasswords(request.getPassword(), request.getConfirmPassword());
+        validateOrganizationNameNotUsed(request.getOrganizationName());
 
         University university = getUniversityOrThrow(request.getUniversityId());
         City city = getCityOrThrow(request.getCityId());
@@ -336,6 +337,15 @@ public class AuthService {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Could not process reset token"
+            );
+        }
+    }
+
+    private void validateOrganizationNameNotUsed(String organizationName) {
+        if (organizerProfileRepository.existsByOrganizationNameIgnoreCase(organizationName.trim())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Organization name is already used"
             );
         }
     }

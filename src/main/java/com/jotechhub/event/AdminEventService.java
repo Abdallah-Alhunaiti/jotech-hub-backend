@@ -135,4 +135,28 @@ public class AdminEventService {
                 SubscriptionStatus.ACTIVE
         );
     }
+    public AdminEventResponse deleteEvent(Long eventId, AdminDeleteEventRequest request) {
+        Event event = eventRepository.findAdminEventById(eventId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
+        if (Boolean.TRUE.equals(event.getCancelled())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event is already deleted");
+        }
+
+        event.setCancelled(true);
+        event.setCancelledAt(LocalDateTime.now());
+
+        String reason = "Deleted by admin";
+        if (request != null
+                && request.getCancellationReason() != null
+                && !request.getCancellationReason().isBlank()) {
+            reason = request.getCancellationReason().trim();
+        }
+
+        event.setCancellationReason(reason);
+
+        event = eventRepository.save(event);
+
+        return mapToResponse(event);
+    }
 }

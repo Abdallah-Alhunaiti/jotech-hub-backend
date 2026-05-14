@@ -27,7 +27,7 @@ public class OrganizerProfile {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "organization_name", nullable = false, length = 150)
+    @Column(name = "organization_name", nullable = false, unique = true, length = 150)
     private String organizationName;
 
     @ManyToOne(fetch = FetchType.LAZY)

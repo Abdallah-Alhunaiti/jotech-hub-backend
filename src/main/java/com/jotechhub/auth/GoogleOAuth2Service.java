@@ -199,6 +199,15 @@ public class GoogleOAuth2Service {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Organization name is required");
         }
 
+        String organizationName = request.getOrganizationName().trim();
+
+        if (organizerProfileRepository.existsByOrganizationNameIgnoreCase(organizationName)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Organization name is already used"
+            );
+        }
+
         if (request.getOrganizationType() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Organization type is required");
         }
@@ -209,7 +218,7 @@ public class GoogleOAuth2Service {
 
         OrganizerProfile organizerProfile = OrganizerProfile.builder()
                 .user(user)
-                .organizationName(request.getOrganizationName().trim())
+                .organizationName(organizationName)
                 .university(university)
                 .city(city)
                 .organizationType(request.getOrganizationType())
@@ -218,7 +227,6 @@ public class GoogleOAuth2Service {
 
         organizerProfileRepository.save(organizerProfile);
     }
-
     private University getUniversityOrThrow(Long universityId) {
         if (universityId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "University is required");
