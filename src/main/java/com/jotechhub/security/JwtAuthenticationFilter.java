@@ -56,7 +56,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Jwt jwt = jwtService.decodeToken(token);
 
             String email = jwt.getSubject();
-            String role = jwt.getClaimAsString("role");
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 Optional<User> optionalUser = userRepository.findByEmail(email);
@@ -69,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 new UsernamePasswordAuthenticationToken(
                                         user.getEmail(),
                                         null,
-                                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                                        List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
                                 );
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
