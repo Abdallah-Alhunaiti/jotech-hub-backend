@@ -1,6 +1,7 @@
 package com.jotechhub.auth;
 
 import com.jotechhub.organizer.OrganizationType;
+import com.jotechhub.user.Gender;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,9 @@ public class GoogleCompleteSignupRequest {
 
     @NotBlank(message = "Account type is required")
     private String accountType;
-    // STUDENT or ORGANIZER
+
+    @NotNull(message = "Gender is required")
+    private Gender gender;
 
     // Student fields
     private String fullName;

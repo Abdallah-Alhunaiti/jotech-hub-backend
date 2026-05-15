@@ -1,6 +1,7 @@
 package com.jotechhub.auth;
 
 import com.jotechhub.organizer.OrganizationType;
+import com.jotechhub.user.Gender;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,9 @@ public class OrganizerSignupRequest {
     @Email(message = "Invalid email format")
     @Size(max = 150, message = "Email must not exceed 150 characters")
     private String email;
+
+    @NotNull(message = "Gender is required")
+    private Gender gender;
 
     @NotNull(message = "University is required")
     private Long universityId;

@@ -112,6 +112,7 @@ public class GoogleOAuth2Service {
                 .email(pending.getEmail())
                 .password(null)
                 .role(role)
+                .gender(request.getGender())
                 .active(true)
                 .emailVerified(true)
                 .termsAccepted(Boolean.TRUE.equals(request.getTermsAccepted()))

@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.jotechhub.savedevent.SavedEventRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class AdminEventService {
     private final EventRepository eventRepository;
     private final OrganizerProfileRepository organizerProfileRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final SavedEventRepository savedEventRepository;
 
     @Transactional(readOnly = true)
     public List<AdminEventResponse> getAllEvents(String status) {
@@ -154,6 +156,8 @@ public class AdminEventService {
         }
 
         event.setCancellationReason(reason);
+
+        savedEventRepository.deleteByEventId(event.getId());
 
         event = eventRepository.save(event);
 

@@ -12,6 +12,8 @@ public interface SavedEventRepository extends JpaRepository<SavedEvent, Long> {
 
     void deleteByUserIdAndEventId(Long userId, Long eventId);
 
+    void deleteByEventId(Long eventId);
+
     @EntityGraph(attributePaths = {"event", "event.category"})
     List<SavedEvent> findByUserIdOrderBySavedAtDesc(Long userId);
 

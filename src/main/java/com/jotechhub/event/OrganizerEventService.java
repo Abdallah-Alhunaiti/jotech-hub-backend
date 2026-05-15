@@ -17,7 +17,7 @@ import com.jotechhub.subscription.SubscriptionStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-
+import com.jotechhub.savedevent.SavedEventRepository;
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,6 +28,8 @@ public class OrganizerEventService {
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final SavedEventRepository savedEventRepository;
+
     public OrganizerEventResponse createEvent(CreateEventRequest request, Authentication authentication) {
         User organizer = getCurrentOrganizer(authentication);
         Category category = getCategoryOrThrow(request.getCategoryId());
@@ -134,6 +136,7 @@ public class OrganizerEventService {
         event.setCancelled(true);
         event.setCancelledAt(LocalDateTime.now());
         event.setCancellationReason("Cancelled by organizer");
+        savedEventRepository.deleteByEventId(event.getId());
 
         event = eventRepository.save(event);
         return mapToResponse(event);
