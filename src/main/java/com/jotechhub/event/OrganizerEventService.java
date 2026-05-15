@@ -4,6 +4,8 @@ import com.jotechhub.category.Category;
 import com.jotechhub.category.CategoryRepository;
 import com.jotechhub.tag.Tag;
 import com.jotechhub.tag.TagRepository;
+import com.jotechhub.user.StudentProfile;
+import com.jotechhub.user.StudentProfileRepository;
 import com.jotechhub.user.User;
 import com.jotechhub.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +14,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.jotechhub.subscription.EventSubscriberResponse;
+import com.jotechhub.subscription.Subscription;
 import com.jotechhub.subscription.SubscriptionRepository;
 import com.jotechhub.subscription.SubscriptionStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import com.jotechhub.savedevent.SavedEventRepository;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,8 +32,7 @@ public class OrganizerEventService {
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
-    private final SavedEventRepository savedEventRepository;
-
+    private final StudentProfileRepository studentProfileRepository;
     public OrganizerEventResponse createEvent(CreateEventRequest request, Authentication authentication) {
         User organizer = getCurrentOrganizer(authentication);
         Category category = getCategoryOrThrow(request.getCategoryId());
@@ -119,6 +122,47 @@ public class OrganizerEventService {
         return mapToResponse(event);
     }
 
+    @Transactional(readOnly = true)
+    public List<EventSubscriberResponse> getEventSubscribers(Long eventId, Authentication authentication) {
+        User organizer = getCurrentOrganizer(authentication);
+
+        Event event = eventRepository.findByIdAndOrganizerId(eventId, organizer.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
+        List<Subscription> subscriptions = subscriptionRepository
+                .findByEventIdAndStatus(event.getId(), SubscriptionStatus.ACTIVE);
+
+        return subscriptions.stream()
+                .map(this::mapToSubscriberResponse)
+                .toList();
+    }
+
+    private EventSubscriberResponse mapToSubscriberResponse(Subscription subscription) {
+        User student = subscription.getUser();
+        StudentProfile profile = studentProfileRepository.findByUserId(student.getId()).orElse(null);
+
+        String fullName = profile != null ? profile.getFullName() : null;
+        String university = (profile != null && profile.getUniversity() != null)
+                ? profile.getUniversity().getName()
+                : null;
+        String city = (profile != null && profile.getCity() != null)
+                ? profile.getCity().getName()
+                : null;
+
+        return EventSubscriberResponse.builder()
+                .subscriptionId(subscription.getId())
+                .status(subscription.getStatus().name())
+                .ticketCode(subscription.getTicketCode())
+                .subscribedAt(subscription.getSubscribedAt())
+                .userId(student.getId())
+                .fullName(fullName)
+                .email(student.getEmail())
+                .university(university)
+                .city(city)
+                .profileImageUrl(student.getProfileImageUrl())
+                .build();
+    }
+
     public OrganizerEventResponse deleteEvent(Long eventId, Authentication authentication) {
         User organizer = getCurrentOrganizer(authentication);
 
@@ -136,7 +180,6 @@ public class OrganizerEventService {
         event.setCancelled(true);
         event.setCancelledAt(LocalDateTime.now());
         event.setCancellationReason("Cancelled by organizer");
-        savedEventRepository.deleteByEventId(event.getId());
 
         event = eventRepository.save(event);
         return mapToResponse(event);

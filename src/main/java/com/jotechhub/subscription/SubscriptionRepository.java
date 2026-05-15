@@ -26,6 +26,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @EntityGraph(attributePaths = {"event"})
     List<Subscription> findByUserIdAndStatus(Long userId, SubscriptionStatus status);
 
-    @EntityGraph(attributePaths = {"event"})
+    @EntityGraph(attributePaths = {"event", "user"})
     List<Subscription> findByEventIdAndStatus(Long eventId, SubscriptionStatus status);
 }

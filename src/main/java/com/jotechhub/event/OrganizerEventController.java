@@ -1,6 +1,7 @@
 package com.jotechhub.event;
 
 import com.jotechhub.common.response.ApiSuccessResponse;
+import com.jotechhub.subscription.EventSubscriberResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -54,5 +55,13 @@ public class OrganizerEventController {
             Authentication authentication
     ) {
         return ApiSuccessResponse.of(organizerEventService.deleteEvent(eventId, authentication));
+    }
+
+    @GetMapping("/{eventId}/subscribers")
+    public ApiSuccessResponse<List<EventSubscriberResponse>> getEventSubscribers(
+            @PathVariable Long eventId,
+            Authentication authentication
+    ) {
+        return ApiSuccessResponse.of(organizerEventService.getEventSubscribers(eventId, authentication));
     }
 }
