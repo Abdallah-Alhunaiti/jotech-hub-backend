@@ -29,6 +29,10 @@ public class StudentProfile {
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", length = 20)
+    private Gender gender;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "university_id")
     private University university;

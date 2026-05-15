@@ -26,7 +26,9 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.HexFormat;
+
 import com.jotechhub.notification.EmailService;
+
 import java.time.LocalDateTime;
 
 import com.jotechhub.security.JwtService;
@@ -67,7 +69,6 @@ public class AuthService {
                 .email(request.getEmail().trim().toLowerCase())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(RoleType.STUDENT)
-                .gender(request.getGender())
                 .active(true)
                 .emailVerified(false)
                 .termsAccepted(Boolean.TRUE.equals(request.getTermsAccepted()))
@@ -88,6 +89,7 @@ public class AuthService {
         StudentProfile studentProfile = StudentProfile.builder()
                 .user(user)
                 .fullName(request.getFullName().trim())
+                .gender(request.getGender())
                 .university(university)
                 .city(city)
                 .build();
@@ -116,7 +118,6 @@ public class AuthService {
                 .email(request.getEmail().trim().toLowerCase())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(RoleType.ORGANIZER)
-                .gender(request.getGender())
                 .active(true)
                 .emailVerified(false)
                 .termsAccepted(Boolean.TRUE.equals(request.getTermsAccepted()))

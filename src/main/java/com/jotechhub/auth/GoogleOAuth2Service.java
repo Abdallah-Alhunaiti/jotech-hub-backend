@@ -112,7 +112,6 @@ public class GoogleOAuth2Service {
                 .email(pending.getEmail())
                 .password(null)
                 .role(role)
-                .gender(request.getGender())
                 .active(true)
                 .emailVerified(true)
                 .termsAccepted(Boolean.TRUE.equals(request.getTermsAccepted()))
@@ -182,6 +181,7 @@ public class GoogleOAuth2Service {
         StudentProfile studentProfile = StudentProfile.builder()
                 .user(user)
                 .fullName(fullName.trim())
+                .gender(request.getGender())
                 .university(university)
                 .city(city)
                 .build();
@@ -228,6 +228,7 @@ public class GoogleOAuth2Service {
 
         organizerProfileRepository.save(organizerProfile);
     }
+
     private University getUniversityOrThrow(Long universityId) {
         if (universityId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "University is required");

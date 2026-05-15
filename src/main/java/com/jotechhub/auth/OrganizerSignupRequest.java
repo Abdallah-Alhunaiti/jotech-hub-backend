@@ -19,9 +19,6 @@ public class OrganizerSignupRequest {
     @Size(max = 150, message = "Email must not exceed 150 characters")
     private String email;
 
-    @NotNull(message = "Gender is required")
-    private Gender gender;
-
     @NotNull(message = "University is required")
     private Long universityId;
 

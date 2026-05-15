@@ -16,7 +16,6 @@ public class GoogleCompleteSignupRequest {
     @NotBlank(message = "Account type is required")
     private String accountType;
 
-    @NotNull(message = "Gender is required")
     private Gender gender;
 
     // Student fields

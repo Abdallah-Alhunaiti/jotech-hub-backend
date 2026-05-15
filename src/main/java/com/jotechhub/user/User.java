@@ -31,10 +31,6 @@ public class User {
     @Column(nullable = false, length = 30)
     private RoleType role;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Gender gender;
-
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
