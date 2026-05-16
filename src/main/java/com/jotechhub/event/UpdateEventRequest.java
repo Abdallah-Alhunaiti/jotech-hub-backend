@@ -34,6 +34,12 @@ public class UpdateEventRequest {
     @NotNull(message = "Event time is required")
     private LocalTime eventTime;
 
+    @NotNull(message = "Event type is required")
+    private EventType eventType;
+
+    @NotNull(message = "City is required")
+    private Long cityId;
+
     @NotBlank(message = "Location is required")
     @Size(max = 255, message = "Location must not exceed 255 characters")
     private String location;

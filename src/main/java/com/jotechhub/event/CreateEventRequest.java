@@ -38,6 +38,12 @@ public class CreateEventRequest {
     @Size(max = 255, message = "Location must not exceed 255 characters")
     private String location;
 
+    @NotNull(message = "Event type is required")
+    private EventType eventType;
+
+    @NotNull(message = "City is required")
+    private Long cityId;
+
     @Size(max = 500, message = "Registration link must not exceed 500 characters")
     private String registrationLink;
 

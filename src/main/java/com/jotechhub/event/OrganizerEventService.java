@@ -21,6 +21,8 @@ import com.jotechhub.subscription.SubscriptionStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import com.jotechhub.city.City;
+import com.jotechhub.city.CityRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class OrganizerEventService {
 
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
+    private final CityRepository cityRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
@@ -37,6 +40,7 @@ public class OrganizerEventService {
         User organizer = getCurrentOrganizer(authentication);
         Category category = getCategoryOrThrow(request.getCategoryId());
         Set<Tag> tags = getTags(request.getTagIds());
+        City city = getCityOrThrow(request.getCityId());
 
         Event event = Event.builder()
                 .name(request.getName().trim())
@@ -44,8 +48,10 @@ public class OrganizerEventService {
                 .price(request.getPrice())
                 .organizer(organizer)
                 .category(category)
+                .city(city)
                 .eventDate(request.getEventDate())
                 .eventTime(request.getEventTime())
+                .eventType(request.getEventType())
                 .location(request.getLocation().trim())
                 .registrationLink(normalizeNullable(request.getRegistrationLink()))
                 .capacity(request.getCapacity())
@@ -95,14 +101,17 @@ public class OrganizerEventService {
         boolean importantFieldsChanged = hasImportantFieldChanges(event, request);
 
         Category category = getCategoryOrThrow(request.getCategoryId());
+        City city = getCityOrThrow(request.getCityId());
         Set<Tag> tags = getTags(request.getTagIds());
 
         event.setName(request.getName().trim());
         event.setDescription(request.getDescription().trim());
         event.setPrice(request.getPrice());
         event.setCategory(category);
+        event.setCity(city);
         event.setEventDate(request.getEventDate());
         event.setEventTime(request.getEventTime());
+        event.setEventType(request.getEventType());
         event.setLocation(request.getLocation().trim());
         event.setRegistrationLink(normalizeNullable(request.getRegistrationLink()));
         event.setCapacity(request.getCapacity());
@@ -209,6 +218,10 @@ public class OrganizerEventService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category not found"));
     }
 
+    private City getCityOrThrow(Long cityId) {
+        return cityRepository.findById(cityId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "City not found"));
+    }
     private Set<Tag> getTags(List<Long> tagIds) {
         if (tagIds == null || tagIds.isEmpty()) {
             return new HashSet<>();
@@ -227,8 +240,11 @@ public class OrganizerEventService {
     private boolean hasImportantFieldChanges(Event event, UpdateEventRequest request) {
         return !Objects.equals(event.getName(), request.getName().trim())
                 || !Objects.equals(event.getDescription(), request.getDescription().trim())
+                || !Objects.equals(event.getCategory().getId(), request.getCategoryId())
+                || !Objects.equals(event.getCity().getId(), request.getCityId())
                 || !Objects.equals(event.getEventDate(), request.getEventDate())
                 || !Objects.equals(event.getEventTime(), request.getEventTime())
+                || !Objects.equals(event.getEventType(), request.getEventType())
                 || !Objects.equals(event.getLocation(), request.getLocation().trim())
                 || !Objects.equals(normalizeNullable(event.getRegistrationLink()), normalizeNullable(request.getRegistrationLink()))
                 || !Objects.equals(event.getCapacity(), request.getCapacity());
@@ -250,7 +266,13 @@ public class OrganizerEventService {
                 .categoryId(event.getCategory().getId())
                 .categoryName(event.getCategory().getName())
                 .eventDate(event.getEventDate())
+                .eventType(event.getEventType().name())
+                .cityId(event.getCity().getId())
+                .cityName(event.getCity().getName())
                 .eventTime(event.getEventTime())
+                .eventType(event.getEventType().name())
+                .cityId(event.getCity().getId())
+                .cityName(event.getCity().getName())
                 .location(event.getLocation())
                 .registrationLink(event.getRegistrationLink())
                 .capacity(event.getCapacity())

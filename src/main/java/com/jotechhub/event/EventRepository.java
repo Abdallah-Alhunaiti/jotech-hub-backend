@@ -30,48 +30,51 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     long countByOrganizerIdAndCancelledFalse(Long organizerId);
 
     @Query(value = """
-            SELECT DISTINCT e
-            FROM Event e
-            LEFT JOIN e.tags t
-            WHERE e.status = com.jotechhub.event.EventStatus.APPROVED
-              AND e.cancelled = false
-              AND (
-                    :keyword = ''
-                    OR LOWER(e.name) LIKE CONCAT('%', LOWER(:keyword), '%')
-                    OR LOWER(e.description) LIKE CONCAT('%', LOWER(:keyword), '%')
-                  )
-              AND (:categoryId IS NULL OR e.category.id = :categoryId)
-              AND (:tagId IS NULL OR t.id = :tagId)
-              AND (
-                    :location = ''
-                    OR LOWER(e.location) LIKE CONCAT('%', LOWER(:location), '%')
-                  )
-              AND (:dateFrom IS NULL OR e.eventDate >= :dateFrom)
-              AND (:dateTo IS NULL OR e.eventDate <= :dateTo)
-            """,
+        SELECT DISTINCT e
+        FROM Event e
+        LEFT JOIN e.tags t
+        WHERE e.status = com.jotechhub.event.EventStatus.APPROVED
+          AND e.cancelled = false
+          AND (
+                :keyword = ''
+                OR LOWER(e.name) LIKE CONCAT('%', LOWER(:keyword), '%')
+                OR LOWER(e.description) LIKE CONCAT('%', LOWER(:keyword), '%')
+              )
+          AND (:categoryId IS NULL OR e.category.id = :categoryId)
+          AND (:cityId IS NULL OR e.city.id = :cityId)
+          AND (:tagId IS NULL OR t.id = :tagId)
+          AND (
+                :location = ''
+                OR LOWER(e.location) LIKE CONCAT('%', LOWER(:location), '%')
+              )
+          AND (:dateFrom IS NULL OR e.eventDate >= :dateFrom)
+          AND (:dateTo IS NULL OR e.eventDate <= :dateTo)
+        """,
             countQuery = """
-                    SELECT COUNT(DISTINCT e.id)
-                    FROM Event e
-                    LEFT JOIN e.tags t
-                    WHERE e.status = com.jotechhub.event.EventStatus.APPROVED
-                      AND e.cancelled = false
-                      AND (
-                            :keyword = ''
-                            OR LOWER(e.name) LIKE CONCAT('%', LOWER(:keyword), '%')
-                            OR LOWER(e.description) LIKE CONCAT('%', LOWER(:keyword), '%')
-                          )
-                      AND (:categoryId IS NULL OR e.category.id = :categoryId)
-                      AND (:tagId IS NULL OR t.id = :tagId)
-                      AND (
-                            :location = ''
-                            OR LOWER(e.location) LIKE CONCAT('%', LOWER(:location), '%')
-                          )
-                      AND (:dateFrom IS NULL OR e.eventDate >= :dateFrom)
-                      AND (:dateTo IS NULL OR e.eventDate <= :dateTo)
-                    """)
+                SELECT COUNT(DISTINCT e.id)
+                FROM Event e
+                LEFT JOIN e.tags t
+                WHERE e.status = com.jotechhub.event.EventStatus.APPROVED
+                  AND e.cancelled = false
+                  AND (
+                        :keyword = ''
+                        OR LOWER(e.name) LIKE CONCAT('%', LOWER(:keyword), '%')
+                        OR LOWER(e.description) LIKE CONCAT('%', LOWER(:keyword), '%')
+                      )
+                  AND (:categoryId IS NULL OR e.category.id = :categoryId)
+                  AND (:cityId IS NULL OR e.city.id = :cityId)
+                  AND (:tagId IS NULL OR t.id = :tagId)
+                  AND (
+                        :location = ''
+                        OR LOWER(e.location) LIKE CONCAT('%', LOWER(:location), '%')
+                      )
+                  AND (:dateFrom IS NULL OR e.eventDate >= :dateFrom)
+                  AND (:dateTo IS NULL OR e.eventDate <= :dateTo)
+                """)
     Page<Event> searchPublicEvents(
             @Param("keyword") String keyword,
             @Param("categoryId") Long categoryId,
+            @Param("cityId") Long cityId,
             @Param("tagId") Long tagId,
             @Param("location") String location,
             @Param("dateFrom") LocalDate dateFrom,

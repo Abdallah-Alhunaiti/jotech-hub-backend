@@ -32,6 +32,9 @@ import com.jotechhub.notification.EmailService;
 import java.time.LocalDateTime;
 
 import com.jotechhub.security.JwtService;
+import com.jotechhub.organizer.OrganizerImageStorageService;
+import org.springframework.web.multipart.MultipartFile;
+
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +51,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
+    private final OrganizerImageStorageService organizerImageStorageService;
 
     @Value("${app.frontend.password-reset-url}")
     private String passwordResetUrl;
@@ -58,6 +62,9 @@ public class AuthService {
     @Value("${app.auth.expose-password-reset-token:false}")
     private boolean exposePasswordResetToken;
 
+    public AuthResponse signupOrganizer(OrganizerSignupRequest request) {
+        return signupOrganizer(request, null);
+    }
     public AuthResponse signupStudent(StudentSignupRequest request) {
         validateEmailNotUsed(request.getEmail());
         validatePasswords(request.getPassword(), request.getConfirmPassword());
@@ -105,8 +112,9 @@ public class AuthService {
                 .build();
     }
 
-    public AuthResponse signupOrganizer(OrganizerSignupRequest request) {
+    public AuthResponse signupOrganizer(OrganizerSignupRequest request, MultipartFile organizationImage) {
         System.out.println("signupOrganizer service reached");
+
         validateEmailNotUsed(request.getEmail());
         validatePasswords(request.getPassword(), request.getConfirmPassword());
         validateOrganizationNameNotUsed(request.getOrganizationName());
@@ -135,9 +143,15 @@ public class AuthService {
 
         authAccountRepository.save(authAccount);
 
+        String organizationImageUrl = organizerImageStorageService.storeOrganizerImage(
+                organizationImage,
+                user.getId()
+        );
+
         OrganizerProfile organizerProfile = OrganizerProfile.builder()
                 .user(user)
                 .organizationName(request.getOrganizationName().trim())
+                .organizationImageUrl(organizationImageUrl)
                 .university(university)
                 .city(city)
                 .organizationType(request.getOrganizationType())
@@ -151,6 +165,7 @@ public class AuthService {
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .displayName(organizerProfile.getOrganizationName())
+                .organizationImageUrl(organizerProfile.getOrganizationImageUrl())
                 .message("Organizer account created successfully")
                 .build();
     }

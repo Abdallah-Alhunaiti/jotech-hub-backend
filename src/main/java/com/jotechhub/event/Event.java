@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
+import com.jotechhub.city.City;
 
 @Entity
 @Table(name = "events")
@@ -45,11 +46,19 @@ public class Event {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "city_id", nullable = false)
+    private City city;
+
     @Column(nullable = false)
     private LocalDate eventDate;
 
     @Column(nullable = false)
     private LocalTime eventTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private EventType eventType;
 
     @Column(nullable = false, length = 255)
     private String location;

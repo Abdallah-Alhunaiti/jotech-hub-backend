@@ -30,6 +30,9 @@ public class OrganizerProfile {
     @Column(name = "organization_name", nullable = false, unique = true, length = 150)
     private String organizationName;
 
+    @Column(name = "organization_image_url", length = 500)
+    private String organizationImageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "university_id")
     private University university;

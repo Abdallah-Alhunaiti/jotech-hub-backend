@@ -20,6 +20,7 @@ public class PublicEventController {
     public ApiSuccessResponse<PagedResponse<PublicEventCardResponse>> getPublicEvents(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long cityId,
             @RequestParam(required = false) Long tagId,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
@@ -32,6 +33,7 @@ public class PublicEventController {
                 publicEventService.getPublicEvents(
                         keyword,
                         categoryId,
+                        cityId,
                         tagId,
                         location,
                         dateFrom,

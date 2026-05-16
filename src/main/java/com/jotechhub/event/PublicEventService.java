@@ -25,6 +25,7 @@ public class PublicEventService {
     public PagedResponse<PublicEventCardResponse> getPublicEvents(
             String keyword,
             Long categoryId,
+            Long cityId,
             Long tagId,
             String location,
             LocalDate dateFrom,
@@ -42,6 +43,7 @@ public class PublicEventService {
         Page<Event> eventPage = eventRepository.searchPublicEvents(
                 normalizeText(keyword),
                 categoryId,
+                cityId,
                 tagId,
                 normalizeText(location),
                 dateFrom,
@@ -97,7 +99,16 @@ public class PublicEventService {
                 .organizerName(resolveOrganizerName(event.getOrganizer().getId()))
                 .categoryName(event.getCategory().getName())
                 .eventDate(event.getEventDate())
+                .eventType(event.getEventType().name())
+                .cityId(event.getCity().getId())
+                .cityName(event.getCity().getName())
                 .eventTime(event.getEventTime())
+                .eventType(event.getEventType().name())
+                .cityId(event.getCity().getId())
+                .cityName(event.getCity().getName())
+                .eventType(event.getEventType().name())
+                .cityId(event.getCity().getId())
+                .cityName(event.getCity().getName())
                 .location(event.getLocation())
                 .price(event.getPrice())
                 .capacity(event.getCapacity())
@@ -116,7 +127,13 @@ public class PublicEventService {
                 .categoryId(event.getCategory().getId())
                 .categoryName(event.getCategory().getName())
                 .eventDate(event.getEventDate())
+                .eventType(event.getEventType().name())
+                .cityId(event.getCity().getId())
+                .cityName(event.getCity().getName())
                 .eventTime(event.getEventTime())
+                .eventType(event.getEventType().name())
+                .cityId(event.getCity().getId())
+                .cityName(event.getCity().getName())
                 .location(event.getLocation())
                 .registrationLink(event.getRegistrationLink())
                 .capacity(event.getCapacity())
