@@ -89,7 +89,7 @@ public class DataSeeder {
                 "Irbid",
                 "Zarqa",
                 "Aqaba",
-                "Salt",
+                "Al-Balqa",
                 "Madaba",
                 "Karak",
                 "Mafraq",
