@@ -113,13 +113,10 @@ public class AdminEventService {
                 .categoryId(event.getCategory().getId())
                 .categoryName(event.getCategory().getName())
                 .eventDate(event.getEventDate())
-                .eventType(event.getEventType().name())
-                .cityId(event.getCity().getId())
-                .cityName(event.getCity().getName())
                 .eventTime(event.getEventTime())
-                .eventType(event.getEventType().name())
-                .cityId(event.getCity().getId())
-                .cityName(event.getCity().getName())
+                .eventType(event.getEventType() != null ? event.getEventType().name() : null)
+                .cityId(event.getCity() != null ? event.getCity().getId() : null)
+                .cityName(event.getCity() != null ? event.getCity().getName() : null)
                 .location(event.getLocation())
                 .registrationLink(event.getRegistrationLink())
                 .capacity(event.getCapacity())
@@ -134,6 +131,7 @@ public class AdminEventService {
                 .createdAt(event.getCreatedAt())
                 .updatedAt(event.getUpdatedAt())
                 .tags(event.getTags().stream().map(tag -> tag.getName()).sorted().toList())
+                .coverKey(event.getCoverKey())
                 .build();
     }
 
@@ -149,6 +147,7 @@ public class AdminEventService {
                 SubscriptionStatus.ACTIVE
         );
     }
+
     @Transactional(readOnly = true)
     public List<EventSubscriberResponse> getEventSubscribers(Long eventId) {
         Event event = eventRepository.findAdminEventById(eventId)

@@ -29,6 +29,12 @@ import com.jotechhub.city.CityRepository;
 @Transactional
 public class OrganizerEventService {
 
+    private static final Set<String> ALLOWED_COVER_KEYS = Set.of(
+            "hackathon", "workshop", "training-course", "bootcamp", "competition",
+            "conference", "ai-ml", "web-dev", "mobile-dev", "cybersecurity",
+            "cloud", "data-science", "generic-tech"
+    );
+
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final CityRepository cityRepository;
@@ -55,6 +61,7 @@ public class OrganizerEventService {
                 .location(request.getLocation().trim())
                 .registrationLink(normalizeNullable(request.getRegistrationLink()))
                 .capacity(request.getCapacity())
+                .coverKey(sanitizeCoverKey(request.getCoverKey()))
                 .status(EventStatus.PENDING)
                 .cancelled(false)
                 .tags(tags)
@@ -115,6 +122,7 @@ public class OrganizerEventService {
         event.setLocation(request.getLocation().trim());
         event.setRegistrationLink(normalizeNullable(request.getRegistrationLink()));
         event.setCapacity(request.getCapacity());
+        event.setCoverKey(sanitizeCoverKey(request.getCoverKey()));
         event.setTags(tags);
 
         if (event.getStatus() == EventStatus.REJECTED) {
@@ -241,7 +249,7 @@ public class OrganizerEventService {
         return !Objects.equals(event.getName(), request.getName().trim())
                 || !Objects.equals(event.getDescription(), request.getDescription().trim())
                 || !Objects.equals(event.getCategory().getId(), request.getCategoryId())
-                || !Objects.equals(event.getCity().getId(), request.getCityId())
+                || !Objects.equals(event.getCity() != null ? event.getCity().getId() : null, request.getCityId())
                 || !Objects.equals(event.getEventDate(), request.getEventDate())
                 || !Objects.equals(event.getEventTime(), request.getEventTime())
                 || !Objects.equals(event.getEventType(), request.getEventType())
@@ -257,6 +265,13 @@ public class OrganizerEventService {
         return value.trim();
     }
 
+    private String sanitizeCoverKey(String value) {
+        if (value == null) return null;
+        String trimmed = value.trim();
+        if (trimmed.isEmpty()) return null;
+        return ALLOWED_COVER_KEYS.contains(trimmed) ? trimmed : null;
+    }
+
     private OrganizerEventResponse mapToResponse(Event event) {
         return OrganizerEventResponse.builder()
                 .id(event.getId())
@@ -266,13 +281,10 @@ public class OrganizerEventService {
                 .categoryId(event.getCategory().getId())
                 .categoryName(event.getCategory().getName())
                 .eventDate(event.getEventDate())
-                .eventType(event.getEventType().name())
-                .cityId(event.getCity().getId())
-                .cityName(event.getCity().getName())
                 .eventTime(event.getEventTime())
-                .eventType(event.getEventType().name())
-                .cityId(event.getCity().getId())
-                .cityName(event.getCity().getName())
+                .eventType(event.getEventType() != null ? event.getEventType().name() : null)
+                .cityId(event.getCity() != null ? event.getCity().getId() : null)
+                .cityName(event.getCity() != null ? event.getCity().getName() : null)
                 .location(event.getLocation())
                 .registrationLink(event.getRegistrationLink())
                 .capacity(event.getCapacity())
@@ -285,6 +297,7 @@ public class OrganizerEventService {
                 .cancellationReason(event.getCancellationReason())
                 .timeState(event.getEventDate().isBefore(LocalDate.now()) ? "PAST" : "UPCOMING")
                 .tags(event.getTags().stream().map(Tag::getName).sorted().toList())
+                .coverKey(event.getCoverKey())
                 .build();
     }
     private Integer getActiveRegistrationsCount(Long eventId) {

@@ -38,4 +38,5 @@ public class OrganizerEventResponse {
     private String timeState;
     private Integer activeRegistrationsCount;
     private List<String> tags;
+    private String coverKey;
 }

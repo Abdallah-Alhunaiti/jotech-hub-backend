@@ -34,4 +34,5 @@ public class SubscriptionResponse {
 
     private Boolean cancelled;
     private String timeState;
+    private String coverKey;
 }

@@ -33,4 +33,5 @@ public class SavedEventResponse {
     private String eventStatus;
     private Boolean cancelled;
     private String timeState;
+    private String coverKey;
 }

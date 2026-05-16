@@ -32,4 +32,5 @@ public class PublicEventDetailsResponse {
     private Integer activeRegistrationsCount;
     private List<String> tags;
     private String timeState;
+    private String coverKey;
 }

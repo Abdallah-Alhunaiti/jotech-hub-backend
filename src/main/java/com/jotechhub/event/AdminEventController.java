@@ -53,5 +53,4 @@ public class AdminEventController {
     ) {
         return ApiSuccessResponse.of(adminEventService.getEventSubscribers(eventId));
     }
-
 }

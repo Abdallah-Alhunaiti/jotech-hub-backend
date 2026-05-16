@@ -52,4 +52,7 @@ public class UpdateEventRequest {
     private Integer capacity;
 
     private List<Long> tagIds;
+
+    @Size(max = 60, message = "Cover key must not exceed 60 characters")
+    private String coverKey;
 }

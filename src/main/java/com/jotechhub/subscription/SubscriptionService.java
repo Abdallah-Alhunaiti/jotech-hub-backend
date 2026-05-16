@@ -166,17 +166,15 @@ public class SubscriptionService {
                 .organizerName(resolveOrganizerName(event.getOrganizer().getId()))
                 .categoryName(event.getCategory().getName())
                 .eventDate(event.getEventDate())
-                .eventType(event.getEventType().name())
-                .cityId(event.getCity().getId())
-                .cityName(event.getCity().getName())
                 .eventTime(event.getEventTime())
-                .eventType(event.getEventType().name())
-                .cityId(event.getCity().getId())
-                .cityName(event.getCity().getName())
+                .eventType(event.getEventType() != null ? event.getEventType().name() : null)
+                .cityId(event.getCity() != null ? event.getCity().getId() : null)
+                .cityName(event.getCity() != null ? event.getCity().getName() : null)
                 .location(event.getLocation())
                 .price(event.getPrice())
                 .cancelled(event.getCancelled())
                 .timeState(isEventPast(event) ? "PAST" : "UPCOMING")
+                .coverKey(event.getCoverKey())
                 .build();
     }
 

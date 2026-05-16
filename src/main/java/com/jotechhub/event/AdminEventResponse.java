@@ -49,4 +49,6 @@ public class AdminEventResponse {
     private LocalDateTime updatedAt;
 
     private List<String> tags;
+
+    private String coverKey;
 }

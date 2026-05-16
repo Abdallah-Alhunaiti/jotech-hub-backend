@@ -27,4 +27,5 @@ public class PublicEventCardResponse {
     private Integer capacity;
     private Integer activeRegistrationsCount;
     private String timeState;
+    private String coverKey;
 }
