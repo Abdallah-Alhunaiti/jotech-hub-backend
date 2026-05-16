@@ -1,6 +1,7 @@
 package com.jotechhub.event;
 
 import com.jotechhub.common.response.ApiSuccessResponse;
+import com.jotechhub.subscription.EventSubscriberResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,13 @@ public class AdminEventController {
             @Valid @RequestBody(required = false) AdminDeleteEventRequest request
     ) {
         return ApiSuccessResponse.of(adminEventService.deleteEvent(eventId, request));
+    }
+
+    @GetMapping("/{eventId}/subscribers")
+    public ApiSuccessResponse<List<EventSubscriberResponse>> getEventSubscribers(
+            @PathVariable Long eventId
+    ) {
+        return ApiSuccessResponse.of(adminEventService.getEventSubscribers(eventId));
     }
 
 }

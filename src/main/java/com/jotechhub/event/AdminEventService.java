@@ -1,8 +1,13 @@
 package com.jotechhub.event;
 
 import com.jotechhub.organizer.OrganizerProfileRepository;
+import com.jotechhub.subscription.EventSubscriberResponse;
+import com.jotechhub.subscription.Subscription;
 import com.jotechhub.subscription.SubscriptionRepository;
 import com.jotechhub.subscription.SubscriptionStatus;
+import com.jotechhub.user.StudentProfile;
+import com.jotechhub.user.StudentProfileRepository;
+import com.jotechhub.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,6 +28,7 @@ public class AdminEventService {
     private final OrganizerProfileRepository organizerProfileRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SavedEventRepository savedEventRepository;
+    private final StudentProfileRepository studentProfileRepository;
 
     @Transactional(readOnly = true)
     public List<AdminEventResponse> getAllEvents(String status) {
@@ -137,6 +143,45 @@ public class AdminEventService {
                 SubscriptionStatus.ACTIVE
         );
     }
+    @Transactional(readOnly = true)
+    public List<EventSubscriberResponse> getEventSubscribers(Long eventId) {
+        Event event = eventRepository.findAdminEventById(eventId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
+        List<Subscription> subscriptions = subscriptionRepository
+                .findByEventIdAndStatus(event.getId(), SubscriptionStatus.ACTIVE);
+
+        return subscriptions.stream()
+                .map(this::mapToSubscriberResponse)
+                .toList();
+    }
+
+    private EventSubscriberResponse mapToSubscriberResponse(Subscription subscription) {
+        User student = subscription.getUser();
+        StudentProfile profile = studentProfileRepository.findByUserId(student.getId()).orElse(null);
+
+        String fullName = profile != null ? profile.getFullName() : null;
+        String university = (profile != null && profile.getUniversity() != null)
+                ? profile.getUniversity().getName()
+                : null;
+        String city = (profile != null && profile.getCity() != null)
+                ? profile.getCity().getName()
+                : null;
+
+        return EventSubscriberResponse.builder()
+                .subscriptionId(subscription.getId())
+                .status(subscription.getStatus().name())
+                .ticketCode(subscription.getTicketCode())
+                .subscribedAt(subscription.getSubscribedAt())
+                .userId(student.getId())
+                .fullName(fullName)
+                .email(student.getEmail())
+                .university(university)
+                .city(city)
+                .profileImageUrl(student.getProfileImageUrl())
+                .build();
+    }
+
     public AdminEventResponse deleteEvent(Long eventId, AdminDeleteEventRequest request) {
         Event event = eventRepository.findAdminEventById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
