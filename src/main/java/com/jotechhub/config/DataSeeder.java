@@ -83,20 +83,20 @@ public class DataSeeder {
     }
 
     private void seedCities() {
-        // Count The Cities Of Jordan = 12 Cities
         List<String> cities = List.of(
                 "Amman",
                 "Irbid",
                 "Zarqa",
-                "Aqaba",
                 "Al-Balqa",
-                "Madaba",
-                "Karak",
                 "Mafraq",
+                "Karak",
+                "Madaba",
                 "Jerash",
                 "Ajloun",
+                "Aqaba",
                 "Ma'an",
-                "Tafilah"
+                "Tafila",
+                "Other"
         );
 
         for (String cityName : cities) {
@@ -263,7 +263,42 @@ public class DataSeeder {
                 "Startups",
                 "Freelancing",
                 "Remote Work",
-                "Career Development"
+                "Career Development",
+                "Node.js",
+                "Express.js",
+                "Spring Boot",
+                "Django",
+                "Flask",
+                "FastAPI",
+                ".NET",
+                "C#",
+                "Laravel",
+                "PHP",
+                "Vue.js",
+                "Svelte",
+                "Kotlin",
+                "Swift",
+                "PostgreSQL",
+                "Redis",
+                "Firebase",
+                "REST API",
+                "GraphQL",
+                "Microservices",
+                "System Design",
+                "Software Architecture",
+                "Design Patterns",
+                "CI/CD",
+                "Jenkins",
+                "Terraform",
+                "Web3",
+                "Solidity",
+                "Embedded Systems",
+                "Open Source",
+                "Soft Skills",
+                "Public Speaking",
+                "Technical Writing",
+                "Interview Prep",
+                "Internships"
         );
 
         for (String tagName : tags) {

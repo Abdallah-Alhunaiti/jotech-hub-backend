@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -28,6 +29,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private String frontendOnboardingUrl;
     @Value("${app.frontend.oauth2-success-url}")
     private String frontendSuccessUrl;
+    @Value("${app.frontend.oauth2-failure-url}")
+    private String frontendFailureUrl;
 
     @Override
     public void onAuthenticationSuccess(
@@ -37,7 +40,27 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     ) throws IOException, ServletException {
 
         OAuth2User principal = (OAuth2User) authentication.getPrincipal();
-        GoogleLoginSuccessData data = googleOAuth2Service.handleGoogleLogin(principal);
+
+        GoogleLoginSuccessData data;
+        try {
+            data = googleOAuth2Service.handleGoogleLogin(principal);
+        } catch (ResponseStatusException ex) {
+            String reason = ex.getReason() != null ? ex.getReason() : "Google sign-in failed";
+            String errorCode = reason.toLowerCase().contains("deactivated")
+                    ? "account_deactivated"
+                    : "google_login_failed";
+            response.sendRedirect(
+                    frontendFailureUrl
+                            + "#error=" + encode(errorCode)
+                            + "&message=" + encode(reason)
+            );
+            return;
+        } catch (Exception ex) {
+            response.sendRedirect(
+                    frontendFailureUrl + "#error=" + encode("google_login_failed")
+            );
+            return;
+        }
 
         String redirectUrl;
 
