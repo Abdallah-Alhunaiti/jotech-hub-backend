@@ -240,16 +240,19 @@ public class AuthService {
     }
 
     public ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request) {
-        String genericMessage = "If this email exists and supports password login, a password reset link has been generated.";
-
         String email = request.getEmail().trim().toLowerCase();
 
-        User user = userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Email was not found"
+                ));
 
-        if (user == null || !Boolean.TRUE.equals(user.getActive())) {
-            return ForgotPasswordResponse.builder()
-                    .message(genericMessage)
-                    .build();
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "This account is deactivated"
+            );
         }
 
         boolean hasLocalAccount = authAccountRepository
@@ -257,9 +260,10 @@ public class AuthService {
                 .isPresent();
 
         if (!hasLocalAccount || user.getPassword() == null) {
-            return ForgotPasswordResponse.builder()
-                    .message(genericMessage)
-                    .build();
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "This account does not support password reset"
+            );
         }
 
         passwordResetTokenRepository.deleteByUserIdAndUsedAtIsNull(user.getId());
@@ -281,7 +285,7 @@ public class AuthService {
         emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
 
         return ForgotPasswordResponse.builder()
-                .message(genericMessage)
+                .message("Password reset link has been sent to your email")
                 .resetToken(exposePasswordResetToken ? rawToken : null)
                 .resetLink(exposePasswordResetToken ? resetLink : null)
                 .build();
