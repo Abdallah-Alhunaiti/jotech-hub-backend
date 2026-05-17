@@ -151,18 +151,18 @@ Sensitive values are not stored directly in the project files.
 - `FRONTEND_FAILURE_URL`
 - `JWT_EXPIRATION`
 - `JWT_ISSUER`
-- FRONTEND_ONBOARDING_URL
-- FRONTEND_PASSWORD_RESET_URL
-- MAIL_HOST
-- MAIL_PORT
-- MAIL_USERNAME
-- MAIL_PASSWORD
-- MAIL_FROM
-- PASSWORD_RESET_EXPIRATION_MINUTES
-- EXPOSE_PASSWORD_RESET_TOKEN
-- APP_BASE_URL
-- file.profile-images-dir
-- file.organizer-images-dir
+- `FRONTEND_ONBOARDING_URL`
+- `FRONTEND_PASSWORD_RESET_URL`
+- `MAIL_HOST`
+- `MAIL_PORT`
+- `MAIL_USERNAME`
+- `MAIL_PASSWORD`
+- `MAIL_FROM`
+- `PASSWORD_RESET_EXPIRATION_MINUTES`
+- `EXPOSE_PASSWORD_RESET_TOKEN`
+- `APP_BASE_URL`
+- `file.profile-images-dir`
+- `file.organizer-images-dir`
 
 ## Default Local Configuration
 
@@ -171,15 +171,15 @@ If not overridden, the project uses these defaults:
 - Database URL: `jdbc:postgresql://localhost:5432/jotech_hub_db`
 - Database username: `postgres`
 - Server port: `8080`
-- JWT expiration: 86400000
-- JWT issuer: jotech-hub
-- Password reset expiration: 15 minutes
-- Frontend OAuth2 success URL: http://localhost:3000/oauth2/callback
-- Frontend OAuth2 failure URL: http://localhost:3000/login
-- Frontend password reset URL: http://localhost:3000/reset-password
-- Application base URL: http://localhost:8080
-- Profile images directory: uploads/profile-images
-- Organizer images directory: uploads/organizers
+- JWT expiration: `86400000`
+- JWT issuer: `jotech-hub`
+- Password reset expiration: `15 minutes`
+- Frontend OAuth2 success URL:`http://localhost:3000/oauth2/callback`
+- Frontend OAuth2 failure URL: `http://localhost:3000/login`
+- Frontend password reset URL: `http://localhost:3000/reset-password`
+- Application base URL: `http://localhost:8080`
+- Profile images directory: `uploads/profile-images`
+- Organizer images directory: `uploads/organizers`
 
 ## Running the Project
 
